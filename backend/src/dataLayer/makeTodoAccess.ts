@@ -26,5 +26,18 @@ export function makeTodoAccess(
     return result.Items as TodoItem[]
   }
 
-  return { getAllTodos }
+  const createTodo = async function (item: TodoItem): Promise<TodoItem> {
+    logger.info('Creating todo item..', item)
+
+    await documentClient
+      .put({
+        TableName: todoTable,
+        Item: item
+      })
+      .promise()
+
+    return item
+  }
+
+  return { getAllTodos, createTodo }
 }
