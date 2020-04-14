@@ -1,5 +1,5 @@
 import { TodoItem } from '../models/index'
-import { CreateTodoRequest } from '../requests/index'
+import { CreateTodoRequest, UpdateTodoRequest } from '../requests/index'
 import { makeTodoAccess } from '../dataLayer/makeTodoAccess'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
@@ -30,4 +30,10 @@ export async function createTodo(
   }
 
   return todoAcces.createTodo(newItem)
+}
+
+export async function updateTodo(todoId: string, request: UpdateTodoRequest) {
+  logger.info('Update Todo', request)
+
+  return todoAcces.updateTodo(todoId, request)
 }

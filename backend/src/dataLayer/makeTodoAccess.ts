@@ -1,4 +1,4 @@
-import { TodoItem } from '../models/index'
+import { TodoItem, TodoUpdate } from '../models/index'
 import * as AWS from 'aws-sdk'
 import { createLogger } from '../utils/logger'
 
@@ -39,5 +39,38 @@ export function makeTodoAccess(
     return item
   }
 
-  return { getAllTodos, createTodo }
+  const updateTodo = async function (
+    todoId: String,
+    request: TodoUpdate
+  ): Promise<void> {
+    logger.info('Update todo item..', todoId, request)
+    const { name, dueDate, done } = request
+
+    let queryResult = await documentClient
+      .query({
+        TableName: todoTable,
+        KeyConditionExpression: 'todoId = :todoId',
+        ExpressionAttributeValues: {
+          ':todoId': todoId
+        }
+      })
+      .promise()
+    logger.info('Retrieved item', queryResult)
+
+    await documentClient
+      .update({
+        TableName: todoTable,
+        Key: { todoId, createdAt: queryResult.Items[0].createdAt },
+        UpdateExpression: 'set #todoName=:name, dueDate=:dueDate, done=:done',
+        ExpressionAttributeNames: { '#todoName': 'name' },
+        ExpressionAttributeValues: {
+          ':name': name,
+          ':dueDate': dueDate,
+          ':done': done
+        }
+      })
+      .promise()
+  }
+
+  return { getAllTodos, createTodo, updateTodo }
 }
