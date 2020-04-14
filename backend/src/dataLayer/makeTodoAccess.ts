@@ -72,5 +72,26 @@ export function makeTodoAccess(
       .promise()
   }
 
-  return { getAllTodos, createTodo, updateTodo }
+  const deleteTodo = async function (todoId: String): Promise<void> {
+    logger.info('Delete todo item..', todoId)
+
+    let queryResult = await documentClient
+      .query({
+        TableName: todoTable,
+        KeyConditionExpression: 'todoId = :todoId',
+        ExpressionAttributeValues: {
+          ':todoId': todoId
+        }
+      })
+      .promise()
+    logger.info('Retrieved item', queryResult)
+
+    await documentClient
+      .delete({
+        TableName: todoTable,
+        Key: { todoId, createdAt: queryResult.Items[0].createdAt }
+      })
+      .promise()
+  }
+  return { getAllTodos, createTodo, updateTodo, deleteTodo }
 }

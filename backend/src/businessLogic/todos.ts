@@ -37,3 +37,9 @@ export async function updateTodo(todoId: string, request: UpdateTodoRequest) {
 
   return todoAcces.updateTodo(todoId, request)
 }
+
+export async function deleteTodo(todoId: string) {
+  logger.info('Delete Todo', todoId)
+
+  return todoAcces.deleteTodo(todoId)
+}
