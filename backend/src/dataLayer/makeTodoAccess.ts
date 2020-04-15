@@ -7,7 +7,8 @@ const logger = createLogger('todoAccess')
 export function makeTodoAccess(
   documentClient = new AWS.DynamoDB.DocumentClient(),
   todoTable = process.env.TODO_TABLE,
-  userIdIndex = process.env.USER_ID_INDEX
+  userIdIndex = process.env.USER_ID_INDEX,
+  bucketName = process.env.IMAGES_S3_BUCKET
 ) {
   const getAllTodos = async function (userId: string): Promise<TodoItem[]> {
     logger.info('Getting items for user...', userId)
@@ -93,5 +94,38 @@ export function makeTodoAccess(
       })
       .promise()
   }
-  return { getAllTodos, createTodo, updateTodo, deleteTodo }
+
+  const createImage = async function (imageId: String, todoId: String) {
+    logger.info('Creating image', imageId, todoId)
+
+    let queryResult = await documentClient
+      .query({
+        TableName: todoTable,
+        KeyConditionExpression: 'todoId = :todoId',
+        ExpressionAttributeValues: {
+          ':todoId': todoId
+        }
+      })
+      .promise()
+    logger.info('Retrieved item', queryResult)
+
+    return documentClient
+      .update({
+        TableName: todoTable,
+        Key: { todoId, createdAt: queryResult.Items[0].createdAt },
+        UpdateExpression: 'set attachmentUrl=:attachmentUrl',
+        ExpressionAttributeValues: {
+          ':attachmentUrl': `https://${bucketName}.s3.amazonaws.com/${imageId}`
+        }
+      })
+      .promise()
+  }
+
+  return {
+    getAllTodos,
+    createTodo,
+    updateTodo,
+    deleteTodo,
+    createImage
+  }
 }
