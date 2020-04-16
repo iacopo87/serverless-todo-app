@@ -8,6 +8,9 @@ plugins:
   - serverless-aws-documentation
   - serverless-plugin-canary-deployments
 
+package:
+  individually: true
+
 provider:
   name: aws
   runtime: nodejs12.x
