@@ -1,10 +1,12 @@
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { createLogger } from '../utils/logger'
 
 const logger = createLogger('DBAccess')
+const XAWS = AWSXRay.captureAWS(AWS)
 
 export function makeDBAccess(
-  s3 = new AWS.S3({ signatureVersion: 'v4' }),
+  s3 = new XAWS.S3({ signatureVersion: 'v4' }),
   bucketName = process.env.IMAGES_S3_BUCKET,
   urlExpiration = process.env.SIGNED_URL_EXPIRATION
 ) {

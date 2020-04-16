@@ -1,11 +1,13 @@
-import { TodoItem, TodoUpdate } from '../models/index'
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
+import { TodoItem, TodoUpdate } from '../models/index'
 import { createLogger } from '../utils/logger'
 
 const logger = createLogger('todoAccess')
+const XAWS = AWSXRay.captureAWS(AWS)
 
 export function makeTodoAccess(
-  documentClient = new AWS.DynamoDB.DocumentClient(),
+  documentClient = new XAWS.DynamoDB.DocumentClient(),
   todoTable = process.env.TODO_TABLE,
   userIdIndex = process.env.USER_ID_INDEX,
   bucketName = process.env.IMAGES_S3_BUCKET
