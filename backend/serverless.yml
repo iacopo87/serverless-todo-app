@@ -6,6 +6,7 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-reqvalidator-plugin
   - serverless-aws-documentation
+  - serverless-plugin-canary-deployments
 
 provider:
   name: aws
@@ -62,6 +63,14 @@ functions:
           - 'xray:PutTelemetryRecords'
         Resource:
           - '*'
+      - Effect: 'Allow'
+        Action:
+          - 'codedeploy:*'
+        Resource:
+          - '*'
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
